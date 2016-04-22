@@ -8,14 +8,6 @@
 
 import Foundation
 
-indirect enum Regex{
-    case Char(Character)
-    case Concat(Regex,Regex)
-    case Alter(Regex,Regex)
-    case ZeroOrOne(Regex)
-    case ZeroOrMore(Regex)
-    case OneOrMore(Regex)
-}
 
 enum Status{
     case SinglePass(Character)

@@ -10,9 +10,40 @@ import Foundation
 
 let reserved = "+?()|*"
 
+indirect enum Regex{
+    case Char(Character)
+    case Concat(Regex,Regex)
+    case Alter(Regex,Regex)
+    case ZeroOrOne(Regex)
+    case ZeroOrMore(Regex)
+    case OneOrMore(Regex)
+}
 
 func notReserved(c : Character) -> Bool{
     return reserved.characters.indexOf(c) == nil
+}
+
+func rchar()->Parser<Regex>{
+    return satisfy(notReserved) >>= { c in
+        pure(.Char(c))
+    }
+}
+
+func regop(c : Character) -> (Regex->Regex)?{
+    if c == "?"{
+        return { reg in
+            .ZeroOrOne(reg)
+        }
+    }else if c == "*"{
+        return { reg in
+            .ZeroOrMore(reg)
+        }
+    }else if c == "+"{
+        return { reg in
+            .OneOrMore(reg)
+        }
+    }
+    return nil
 }
 
 func rexp() -> Parser<Regex>{
@@ -23,13 +54,6 @@ func rexp() -> Parser<Regex>{
             }
         }
     }) +++ rtrm()
-}
-
-
-func rchar()->Parser<Regex>{
-    return satisfy(notReserved) >>= { c in
-        pure(.Char(c))
-    }
 }
 
 func ratm() -> Parser<Regex>{
@@ -44,8 +68,8 @@ func ratm() -> Parser<Regex>{
 
 func rfac() -> Parser<Regex>{
     return (ratm() >>= {atm in
-        symbol("*") >>= {_ in
-            pure(.ZeroOrMore(atm))
+        satisfy({sc in sc == "*" || sc == "?" || sc == "+"}) >>= {c in
+            pure(regop(c)!(atm))
         }
     })  +++ ratm()
 }
@@ -58,3 +82,5 @@ func rtrm() -> Parser<Regex>{
         }
     }) +++ rfac()
 }
+
+
