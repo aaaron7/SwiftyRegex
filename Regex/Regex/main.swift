@@ -49,13 +49,25 @@ func matcherHelper(reg: Regex , str : String, cont: String-> Bool) -> Bool{
     }
 }
 
+func regexMatch(reg: String, source: String) -> Bool{
+    let parserResult = rexp().p(reg)
+    print(parserResult)
+    guard parserResult.count > 0 else{
+        return false
+    }
+
+    return matcher(parserResult[0].0,str: source)
+}
+
 let reg1:Regex = .Concat(.Char("c"),.Char("a"))
 let reg2 : Regex = .OneOrMore(reg1)
 
-let result = matcher(reg2, str: "cacacabd")
+
+
+let result = regexMatch("a(bc|b*)", source: "abbbbbbbbbbbb")
+
 
 print(result)
-
 
 
 print("Hello, World!")
